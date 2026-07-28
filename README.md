@@ -42,13 +42,16 @@ python main.py
 
 ---
 
-### 3. Running the Discord Slash Command Bot (`/schedule`)
+### 3. Running the Discord Slash Command Bot
 
-If you want the bot running in the background so anyone in your Discord server can type `/schedule`:
+If you want the bot running in the background so anyone in your Discord server can type `/schedule` or `/poster`:
 
 ```bash
 python bot.py
 ```
+
+- **`/schedule`**: Posts both the day-grouped text schedule embed AND the graphic matchday poster.
+- **`/poster`**: Displays **ONLY** the graphic matchday poster image.
 
 ---
 
