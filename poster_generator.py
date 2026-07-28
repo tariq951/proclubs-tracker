@@ -220,7 +220,7 @@ def generate_matchday_poster(club_name: str, matches: List[Match], output_path: 
             
             # 1. Row Header (Left: Official League Logo + Competition Name, Center: Date)
             date_str = m.match_time.strftime("%a %d %b").upper()
-            comp_str = f"{m.competition.upper()} ({m.platform})"
+            comp_str = m.competition.upper()
             
             # Center Date Header
             draw.text((width // 2, y_base + 2), date_str, fill=MUTED_TEXT, font=font_date_comp, anchor="ma")
