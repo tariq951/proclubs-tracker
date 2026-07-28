@@ -1,0 +1,13 @@
+# Virtual Environment & Secret Tokens
+venv/
+.env
+
+# PyInstaller Build & Dist Folders
+build/
+dist/
+*.spec
+
+# Python Cache & OS Temp Files
+__pycache__/
+*.pyc
+.DS_Store
