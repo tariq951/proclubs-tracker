@@ -189,14 +189,7 @@ def generate_matchday_poster(club_name: str, matches: List[Match], output_path: 
 
     from logo_cache import logo_cache
 
-    # 1. Top Left: Enlarged Virtua CF Crest (165x165px)
-    logo_w, logo_h = 165, 165
-    logo_x, logo_y = 25, 5
-    virtua_logo_url = logo_cache.get_logo(club_name)
-    virtua_crest = download_image(virtua_logo_url, default_size=(logo_w, logo_h), team_name=club_name)
-    poster.paste(virtua_crest, (logo_x, logo_y), virtua_crest)
-
-    # 2. Top Header: Perfectly Centered ("FIXTURES" + "MATCHDAY SCHEDULE")
+    # 1. Top Header: Perfectly Centered ("FIXTURES" + "MATCHDAY SCHEDULE")
     draw.text((width // 2, 38), "F I X T U R E S", fill=WHITE_TEXT, font=font_header, anchor="ma")
     draw.text((width // 2, 112), "MATCHDAY SCHEDULE", fill=MUTED_TEXT, font=font_sub_header, anchor="ma")
     
