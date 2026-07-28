@@ -189,21 +189,16 @@ def generate_matchday_poster(club_name: str, matches: List[Match], output_path: 
 
     from logo_cache import logo_cache
 
-    # 1. Top Left: Virtua CF Crest (140x140px at X=20) + Tight Text Positioning (gap = 2px)
-    logo_w, logo_h = 140, 140
-    logo_x, logo_y = 20, 15
+    # 1. Top Left: Enlarged Virtua CF Crest (165x165px)
+    logo_w, logo_h = 165, 165
+    logo_x, logo_y = 25, 5
     virtua_logo_url = logo_cache.get_logo(club_name)
     virtua_crest = download_image(virtua_logo_url, default_size=(logo_w, logo_h), team_name=club_name)
     poster.paste(virtua_crest, (logo_x, logo_y), virtua_crest)
-    
-    # Text brought tight to logo (gap = 2px, X = 162px)
-    text_x = logo_x + logo_w + 2
-    text_y = logo_y + logo_h // 2
-    draw.text((text_x, text_y), club_name.upper(), fill=WHITE_TEXT, font=font_club_name, anchor="lm")
 
-    # 2. Top Right Header ("FIXTURES" + "MATCHDAY SCHEDULE") - Centered away from right red graphic shape
-    draw.text((width // 2 + 40, 38), "F I X T U R E S", fill=WHITE_TEXT, font=font_header, anchor="ma")
-    draw.text((width // 2 + 40, 112), "MATCHDAY SCHEDULE", fill=MUTED_TEXT, font=font_sub_header, anchor="ma")
+    # 2. Top Header: Perfectly Centered ("FIXTURES" + "MATCHDAY SCHEDULE")
+    draw.text((width // 2, 38), "F I X T U R E S", fill=WHITE_TEXT, font=font_header, anchor="ma")
+    draw.text((width // 2, 112), "MATCHDAY SCHEDULE", fill=MUTED_TEXT, font=font_sub_header, anchor="ma")
     
     if not matches:
         draw.text((width // 2, height // 2), f"No upcoming matches for {club_name}", fill=WHITE_TEXT, font=font_team, anchor="ma")
