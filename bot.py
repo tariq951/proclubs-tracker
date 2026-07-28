@@ -84,7 +84,10 @@ async def on_ready():
 async def schedule_command(interaction: discord.Interaction):
     """Slash command trigger for running Virtua CF schedule tracker on demand in Discord."""
     # Send immediate defer ACK to Discord so interaction status transitions to 'Thinking' immediately
-    await interaction.response.defer(thinking=True)
+    try:
+        await interaction.response.defer(thinking=True)
+    except Exception as defer_err:
+        logger.warning(f"Could not defer interaction (already responded or expired): {defer_err}")
     
     try:
         cfg = get_config()
@@ -133,6 +136,39 @@ async def schedule_command(interaction: discord.Interaction):
     except Exception as e:
         logger.error(f"Error executing /schedule slash command: {e}", exc_info=True)
         await interaction.followup.send(f"❌ Failed to fetch match schedule: `{e}`")
+
+@client.tree.command(name="poster", description="Generate & display the Virtua CF matchday graphic poster only.")
+async def poster_command(interaction: discord.Interaction):
+    """Slash command trigger for generating and posting ONLY the matchday graphic poster in Discord."""
+    try:
+        await interaction.response.defer(thinking=True)
+    except Exception as defer_err:
+        logger.warning(f"Could not defer interaction: {defer_err}")
+        
+    try:
+        cfg = get_config()
+        club_name = cfg["club_name"]
+        
+        final_matches = await asyncio.wait_for(
+            asyncio.to_thread(fetch_scraped_matches, club_name),
+            timeout=12.0
+        )
+
+        from poster_generator import generate_matchday_poster
+        poster_path = generate_matchday_poster(club_name, final_matches, output_path="matchday_poster.png")
+        
+        if os.path.exists(poster_path):
+            poster_file = discord.File(poster_path, filename="matchday_poster.png")
+            await interaction.followup.send(file=poster_file)
+        else:
+            await interaction.followup.send("⚠️ Failed to render matchday graphic poster.")
+            
+    except asyncio.TimeoutError:
+        logger.error("Scraping execution timed out after 12s")
+        await interaction.followup.send("⚠️ Match scraping took longer than 12s. Please try `/poster` again.")
+    except Exception as e:
+        logger.error(f"Error executing /poster slash command: {e}", exc_info=True)
+        await interaction.followup.send(f"❌ Failed to generate poster: `{e}`")
 
 if __name__ == "__main__":
     if not DISCORD_BOT_TOKEN:
