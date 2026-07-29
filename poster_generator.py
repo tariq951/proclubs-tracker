@@ -9,14 +9,15 @@ from models import Match
 
 logger = logging.getLogger("PosterGenerator")
 
-# Color Palette (Kickly Emerald & Crimson Sports Graphic Theme)
-BG_TEAL = (24, 110, 94)          # Deep Emerald Teal (#186e5e)
-CARD_BLACK = (12, 16, 23)        # Jet Black (#0c1017)
-TIME_MAGENTA = (230, 28, 92)     # Electric Magenta/Crimson (#e61c5c)
-GOLD_TEXT = (255, 215, 0)        # Gold Accent (#ffd700)
+# Color Palette (Virtua CF Signature Midnight Navy & Electric Gold Theme)
+BG_NAVY = (11, 23, 35)           # Deep Midnight Navy (#0b1723)
+CARD_NAVY = (19, 38, 52)         # Steel Dark Navy (#132634)
+TIME_GOLD = (244, 186, 29)       # Electric Virtua Gold (#f4ba1d)
+TIME_BOX_TEXT = (11, 23, 35)     # Deep Midnight Navy text on Gold box
+GOLD_TEXT = (244, 186, 29)       # Virtua Gold Accent (#f4ba1d)
 WHITE_TEXT = (255, 255, 255)     # Pure White
-MUTED_TEXT = (195, 230, 220)     # Light Teal Muted Text
-CYAN_ACCENT = (56, 189, 248)     # Sky Blue (#38bdf8)
+MUTED_TEXT = (140, 165, 175)     # Steel Blue Muted Text (#8ca5af)
+ACCENT_GREY = (104, 123, 128)    # Steel Grey
 
 LEAGUE_LOGOS_DIR = os.path.join(os.path.dirname(__file__), "assets", "league_logos")
 
@@ -58,7 +59,6 @@ FONTS_DIR = os.path.join(os.path.dirname(__file__), "assets", "fonts")
 
 def load_system_font(size: int, bold: bool = False) -> ImageFont.ImageFont:
     """Loads system or bundled truetype font across Mac, Windows, and Linux."""
-    # 1. Local bundled project fonts (guarantees identical output across all OS)
     bundled_filename = "ArialBold.ttf" if bold else "Arial.ttf"
     bundled_path = os.path.join(FONTS_DIR, bundled_filename)
     if os.path.exists(bundled_path):
@@ -67,13 +67,10 @@ def load_system_font(size: int, bold: bool = False) -> ImageFont.ImageFont:
         except Exception:
             pass
 
-    # 2. Windows & Mac System Font Fallbacks
     font_paths = [
-        # Windows
         "C:\\Windows\\Fonts\\arialbd.ttf" if bold else "C:\\Windows\\Fonts\\arial.ttf",
         "C:\\Windows\\Fonts\\segoeuib.ttf" if bold else "C:\\Windows\\Fonts\\segoeui.ttf",
         "C:\\Windows\\Fonts\\calibrib.ttf" if bold else "C:\\Windows\\Fonts\\calibri.ttf",
-        # Mac / Unix
         "/System/Library/Fonts/Supplemental/Arial Bold.ttf" if bold else "/System/Library/Fonts/Supplemental/Arial.ttf",
         "/System/Library/Fonts/Helvetica.ttc",
         "/System/Library/Fonts/Supplemental/Futura.ttc",
@@ -140,7 +137,7 @@ def create_placeholder_shield(size: tuple = (140, 140)) -> Image.Image:
     draw = ImageDraw.Draw(img)
     w, h = size
     points = [(w // 2, 4), (w - 6, 16), (w - 10, h - 18), (w // 2, h - 4), (10, h - 18), (6, 16)]
-    draw.polygon(points, fill=(30, 41, 59, 255), outline=(100, 116, 139, 255), width=2)
+    draw.polygon(points, fill=(19, 38, 52, 255), outline=(244, 186, 29, 255), width=2)
     return img
 
 def draw_halftone_dots(draw: ImageDraw.ImageDraw, bounds: tuple, color: tuple, spacing: int = 16, dot_radius: int = 3):
@@ -152,21 +149,20 @@ def draw_halftone_dots(draw: ImageDraw.ImageDraw, bounds: tuple, color: tuple, s
 
 def generate_matchday_poster(club_name: str, matches: List[Match], output_path: str = "matchday_poster.png") -> str:
     """
-    Generates a 1080x1080 Kickly-style matchday poster with 12-hour kickoff times (e.g. 11:00),
-    close top-left logo text positioning, and clean official schedule footer.
+    Generates a 1080x1080 Kickly-style Virtua CF matchday poster matching official Navy & Gold brand identity.
     """
     width = 1080
     height = 1080
     
-    poster = Image.new("RGBA", (width, height), BG_TEAL)
+    poster = Image.new("RGBA", (width, height), BG_NAVY)
     draw = ImageDraw.Draw(poster)
     
-    # 1. Background Geometric Graphic Accents
-    draw_halftone_dots(draw, (0, height - 240, 160, height), (255, 255, 255, 30), spacing=16, dot_radius=3)
-    draw.polygon([(0, height - 280), (90, height), (0, height)], fill=TIME_MAGENTA)
+    # 1. Background Geometric Graphic Accents (Virtua Gold & Steel Accents)
+    draw_halftone_dots(draw, (0, height - 240, 160, height), (104, 123, 128, 40), spacing=16, dot_radius=3)
+    draw.polygon([(0, height - 280), (90, height), (0, height)], fill=TIME_GOLD)
     draw.polygon([(0, height - 190), (50, height), (0, height)], fill=(255, 255, 255, 220))
     
-    draw.polygon([(width - 200, 0), (width, 0), (width, 240), (width - 120, 240)], fill=TIME_MAGENTA)
+    draw.polygon([(width - 200, 0), (width, 0), (width, 240), (width - 120, 240)], fill=TIME_GOLD)
     draw.polygon([(width - 90, 0), (width, 0), (width, 180)], fill=(255, 255, 255, 230))
     
     chevron_x = width - 110
@@ -233,10 +229,10 @@ def generate_matchday_poster(club_name: str, matches: List[Match], output_path: 
             time_box_rect = [(bar_x + team_box_w, bar_y), (bar_x + team_box_w + time_box_w, bar_y + row_height)]
             right_box_rect = [(bar_x + team_box_w + time_box_w, bar_y), (bar_x + bar_w, bar_y + row_height)]
             
-            # Draw Black Team Boxes & Magenta Center Time Box
-            draw.rectangle(left_box_rect, fill=CARD_BLACK)
-            draw.rectangle(time_box_rect, fill=TIME_MAGENTA)
-            draw.rectangle(right_box_rect, fill=CARD_BLACK)
+            # Draw Steel Navy Team Boxes & Virtua Gold Center Time Box
+            draw.rectangle(left_box_rect, fill=CARD_NAVY)
+            draw.rectangle(time_box_rect, fill=TIME_GOLD)
+            draw.rectangle(right_box_rect, fill=CARD_NAVY)
             
             # Resolve Team Crest Logos (52x52px)
             home_logo_url = logo_cache.get_logo(m.home_team) or m.home_logo
@@ -254,9 +250,9 @@ def generate_matchday_poster(club_name: str, matches: List[Match], output_path: 
             h_color = GOLD_TEXT if is_home_club else WHITE_TEXT
             draw.text((bar_x + team_box_w - 18, bar_y + row_height // 2), h_short, fill=h_color, font=font_team, anchor="rm")
             
-            # Center Box Content (Kickoff Time in 12-hour format without AM/PM: e.g. 11:00)
+            # Center Box Content (Kickoff Time in 12-hour format: Midnight Navy text on Gold box)
             time_hm_12 = m.match_time.strftime("%I:%M").lstrip("0")
-            draw.text((bar_x + team_box_w + time_box_w // 2, bar_y + row_height // 2), time_hm_12, fill=WHITE_TEXT, font=font_time, anchor="mm")
+            draw.text((bar_x + team_box_w + time_box_w // 2, bar_y + row_height // 2), time_hm_12, fill=TIME_BOX_TEXT, font=font_time, anchor="mm")
             
             # Right Box Content (Away Team: Logo at Right X=bar_x+bar_w-64, Name Left-Aligned)
             a_name = m.away_team.upper()
