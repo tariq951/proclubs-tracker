@@ -84,11 +84,10 @@ class VPLScraper(BaseScraper):
                 except Exception as err:
                     self.logger.debug(f"Error parsing VPL MY article fixture: {err}")
 
-        # 2. Fallback to generic page search & direct event page if needed
+        # 2. Fallback to generic page search if no matches returned from tab 6
         if not matches:
             urls = [
                 (f"{self.base_url}{self.my_path}", None),
-                (f"{self.base_url}/event/2922/s326-rookie-league-2", None),
                 (f"{self.base_url}/en/search", {"q": club_name, "type": "teams", "country": "MY"})
             ]
 
