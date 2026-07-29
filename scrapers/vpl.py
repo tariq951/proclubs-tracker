@@ -127,33 +127,4 @@ class VPLScraper(BaseScraper):
                 if matches:
                     break
 
-        # Fallback static injection for Tuesday 28 July 2026 VPL fixtures if missing from AJAX calendar response
-        static_vpl_fixtures = [
-            Match(
-                platform="VPL MY",
-                home_team="Virtua CF",
-                away_team="Acousticsss FC",
-                match_time=self.parse_datetime("2026-07-28 23:00:00"),
-                competition="VPL Rookie League 2",
-                match_url="https://www.virtualproleague.com/match-info/MjkyMi0yMTE5MjU=/virtua-cf-x-acousticsss-fc-s326-rookie-league-2",
-                home_logo="",
-                away_logo=""
-            ),
-            Match(
-                platform="VPL MY",
-                home_team="Destaportivo FC",
-                away_team="Virtua CF",
-                match_time=self.parse_datetime("2026-07-28 23:30:00"),
-                competition="VPL Rookie League 2",
-                match_url="https://www.virtualproleague.com/match-info/MjkyMi0yMTE5MzE=/destaportivo-fc-x-virtua-cf-s326-rookie-league-2",
-                home_logo="",
-                away_logo=""
-            )
-        ]
-
-        existing_urls = {m.match_url for m in matches}
-        for sf in static_vpl_fixtures:
-            if sf.match_url not in existing_urls:
-                matches.append(sf)
-
         return matches
