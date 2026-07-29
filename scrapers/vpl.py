@@ -27,17 +27,11 @@ class VPLScraper(BaseScraper):
         
         team_id = self._extract_team_id(club_name)
         
-        # 1. Primary VPL AJAX endpoints (tabs-team-info-6 for upcoming, tabs-team-info-5 for recent played matches)
-        endpoints = [
-            f"{self.base_url}/tabs-team-info-6",
-            f"{self.base_url}/tabs-team-info-5"
-        ]
+        # 1. Primary VPL AJAX Calendar endpoint (tabs-team-info-6)
+        calendar_url = f"{self.base_url}/tabs-team-info-6"
+        soup = self.fetch_soup(calendar_url, params={"id_time": team_id})
         
-        for ep in endpoints:
-            soup = self.fetch_soup(ep, params={"id_time": team_id})
-            if not soup:
-                continue
-                
+        if soup:
             articles = soup.select("article.game-result")
             for art in articles:
                 try:
