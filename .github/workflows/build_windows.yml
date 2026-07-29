@@ -1,11 +1,9 @@
 name: Build Windows Executable (.exe)
 
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
   build-windows:
@@ -15,10 +13,11 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Set up Python 3.11
+    - name: Set up Python 3.11 with Pip Caching
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+        cache: 'pip'
 
     - name: Install Dependencies
       run: |
@@ -35,3 +34,12 @@ jobs:
       with:
         name: pro_clubs_tracker-windows-exe
         path: dist/pro_clubs_tracker.exe
+        retention-days: 7
+
+    - name: Upload .exe to GitHub Release Asset
+      if: github.event_name == 'release'
+      uses: softprops/action-gh-release@v2
+      with:
+        files: dist/pro_clubs_tracker.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
