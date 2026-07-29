@@ -1,6 +1,8 @@
 name: Build Windows Executable (.exe)
 
 on:
+  push:
+    branches: [ main, master ]
   workflow_dispatch:
   release:
     types: [published]
