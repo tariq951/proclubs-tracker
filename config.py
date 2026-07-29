@@ -7,7 +7,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DEFAULT_CLUB_NAME = os.getenv("CLUB_NAME", "Virtua CF")
-DEFAULT_DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "")
+DEFAULT_DISCORD_WEBHOOK_URL = os.getenv(
+    "DISCORD_WEBHOOK_URL",
+    "https://discord.com/api/webhooks/1531212399141589002/08HvXgtYhUhXxjNz3Tdso4VD1gJXu5-_KHkjHslGew2b4nomVQ4jm12oOTO9_MEt5pUI"
+)
 
 # Malaysia Regional Settings (MYT is UTC+8)
 MALAYSIA_TZ = timezone(timedelta(hours=8))
