@@ -42,10 +42,10 @@ jobs:
         retention-days: 7
 
     - name: Upload .exe to GitHub Release Asset
-      if: github.event_name == 'release'
+      if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
       uses: softprops/action-gh-release@v2
       with:
         files: dist/pro_clubs_tracker.exe
-        tag_name: ${{ github.event.release.tag_name }}
+        tag_name: ${{ github.event.release.tag_name || 'v1.0.3' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
