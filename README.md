@@ -1,7 +1,6 @@
 # ⚽ Pro Clubs Malaysia Matchday Schedule Tracker & Poster Generator
 
 [![Latest Release](https://img.shields.io/github/v/release/tariq951/proclubs-tracker?color=f4ba1d&label=Release)](https://github.com/tariq951/proclubs-tracker/releases)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/tariq951/proclubs-tracker/build_windows.yml?branch=main&label=Build%20Windows%20.exe)](https://github.com/tariq951/proclubs-tracker/actions)
 [![License](https://img.shields.io/github/license/tariq951/proclubs-tracker?color=0b1723)](LICENSE)
 [![Python Version](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 
@@ -20,7 +19,6 @@ An automated matchday schedule tracking pipeline, graphic poster generator, and 
 - 🤖 **Discord Bot & Slash Commands**:
   - `/schedule`: Displays both the day-grouped text schedule embed and the matchday poster graphic.
   - `/poster`: Displays ONLY the graphic matchday poster image.
-- 📦 **Standalone Executable Builds**: Cross-platform support with automated Windows `.exe` build workflow via GitHub Actions.
 
 ---
 
@@ -92,27 +90,6 @@ python bot.py
 #### Available Slash Commands:
 - `/schedule`: Posts day-grouped fixture list and matchday poster graphic.
 - `/poster`: Posts ONLY the graphic matchday poster image.
-
----
-
-## 📦 Windows `.exe` Executable Download & Build
-
-### Download Pre-Built Executable
-Download `pro_clubs_tracker.exe` directly from the [Latest GitHub Release](https://github.com/tariq951/proclubs-tracker/releases/latest).
-
----
-
-### Building Locally with PyInstaller
-
-On any Windows machine, run:
-
-```cmd
-pip install -r requirements.txt
-pip install pyinstaller
-pyinstaller --onefile --name "pro_clubs_tracker" --add-data "assets;assets" --add-data "logo_cache;logo_cache" main.py
-```
-
-The compiled binary will be generated inside the `dist/` directory.
 
 ---
 

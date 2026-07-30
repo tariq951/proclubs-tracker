@@ -43,5 +43,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🚀 Features (`feat`)
 - **Core Schedule Pipeline**: Built scrapers for Virtua CF across VPL Malaysia, LPM Malaysia, and VPG REST API.
 - **Kickly-Style Graphic Poster**: 1080x1080 high-res matchday poster generator with 3-part horizontal fixture bars.
-- **Cross-Platform Standalone Build**: Added PyInstaller support for compiling native `.exe` binaries for Windows PCs.
-- **GitHub Actions CI/CD**: Added workflow to build `.exe` on cloud runners and attach binaries to GitHub Releases.
