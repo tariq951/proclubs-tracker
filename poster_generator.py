@@ -86,6 +86,30 @@ def load_system_font(size: int, bold: bool = False) -> ImageFont.ImageFont:
 LOCAL_IMAGE_CACHE_DIR = os.path.join(os.path.dirname(__file__), "logo_cache", "images")
 os.makedirs(LOCAL_IMAGE_CACHE_DIR, exist_ok=True)
 
+def crop_and_contain_logo(img: Image.Image, default_size: tuple) -> Image.Image:
+    """
+    Automatically crops surrounding transparent whitespace using alpha channel bounding box getchannel('A').getbbox(),
+    then resizes & centers the logo within fixed default_size bounding box maintaining aspect ratio.
+    """
+    img = img.convert("RGBA")
+    
+    # 1. Crop out transparent whitespace bounds
+    alpha = img.getchannel('A')
+    bbox = alpha.getbbox()
+    if bbox:
+        img = img.crop(bbox)
+    elif img.getbbox():
+        img = img.crop(img.getbbox())
+        
+    # 2. Resize within bounding box maintaining aspect ratio
+    img.thumbnail(default_size, Image.Resampling.LANCZOS)
+    
+    # 3. Center on transparent canvas of fixed target bounding box size
+    canvas = Image.new("RGBA", default_size, (0, 0, 0, 0))
+    offset = ((default_size[0] - img.width) // 2, (default_size[1] - img.height) // 2)
+    canvas.paste(img, offset, img)
+    return canvas
+
 def download_image(url: str, default_size: tuple = (140, 140), team_name: str = "") -> Image.Image:
     """Loads team logo from local disk image cache or downloads & saves to local disk as PNG."""
     safe_key = None
@@ -98,12 +122,8 @@ def download_image(url: str, default_size: tuple = (140, 140), team_name: str = 
         local_path = os.path.join(LOCAL_IMAGE_CACHE_DIR, f"{safe_key}.png")
         if os.path.exists(local_path) and os.path.getsize(local_path) > 0:
             try:
-                img = Image.open(local_path).convert("RGBA")
-                img.thumbnail(default_size, Image.Resampling.LANCZOS)
-                canvas = Image.new("RGBA", default_size, (0, 0, 0, 0))
-                offset = ((default_size[0] - img.width) // 2, (default_size[1] - img.height) // 2)
-                canvas.paste(img, offset, img)
-                return canvas
+                img = Image.open(local_path)
+                return crop_and_contain_logo(img, default_size)
             except Exception:
                 pass
 
@@ -113,7 +133,7 @@ def download_image(url: str, default_size: tuple = (140, 140), team_name: str = 
     try:
         res = requests.get(url, timeout=5, headers={"User-Agent": "Mozilla/5.0"})
         if res.status_code == 200:
-            raw_img = Image.open(io.BytesIO(res.content)).convert("RGBA")
+            raw_img = Image.open(io.BytesIO(res.content))
             if safe_key:
                 try:
                     local_path = os.path.join(LOCAL_IMAGE_CACHE_DIR, f"{safe_key}.png")
@@ -121,12 +141,7 @@ def download_image(url: str, default_size: tuple = (140, 140), team_name: str = 
                 except Exception:
                     pass
 
-            img = raw_img.copy()
-            img.thumbnail(default_size, Image.Resampling.LANCZOS)
-            canvas = Image.new("RGBA", default_size, (0, 0, 0, 0))
-            offset = ((default_size[0] - img.width) // 2, (default_size[1] - img.height) // 2)
-            canvas.paste(img, offset, img)
-            return canvas
+            return crop_and_contain_logo(raw_img, default_size)
     except Exception:
         pass
     return create_placeholder_shield(default_size)
