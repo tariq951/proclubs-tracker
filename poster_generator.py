@@ -282,7 +282,7 @@ def generate_matchday_poster(club_name: str, matches: List[Match], output_path: 
             curr_x += img.width + spacing
 
     # Clean Official Matchday Schedule Footer Text
-    footer_text = "OFFICIAL MATCHDAY SCHEDULE"
+    footer_text = f"{club_name.upper()} OFFICIAL MATCHDAY SCHEDULE"
     draw.text((width // 2, height - 28), footer_text, fill=MUTED_TEXT, font=font_footer, anchor="ma")
 
     poster.save(output_path, "PNG")
