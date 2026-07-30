@@ -88,23 +88,12 @@ os.makedirs(LOCAL_IMAGE_CACHE_DIR, exist_ok=True)
 
 def crop_and_contain_logo(img: Image.Image, default_size: tuple) -> Image.Image:
     """
-    1. Scans logo pixels and converts any near-white background pixels (R > 240, G > 240, B > 240) to transparent (A = 0).
-    2. Automatically crops surrounding transparent whitespace using alpha channel bounding box getchannel('A').getbbox().
-    3. Resizes & centers the logo within fixed default_size bounding box maintaining aspect ratio.
+    Automatically crops surrounding transparent whitespace using alpha channel bounding box getchannel('A').getbbox(),
+    then resizes & centers the logo within fixed default_size bounding box maintaining aspect ratio.
     """
     img = img.convert("RGBA")
     
-    # 1. Convert near-white background pixels (R, G, B > 240) into completely transparent pixels (A = 0)
-    data = img.getdata()
-    new_data = []
-    for item in data:
-        if item[0] > 240 and item[1] > 240 and item[2] > 240:
-            new_data.append((255, 255, 255, 0))
-        else:
-            new_data.append(item)
-    img.putdata(new_data)
-    
-    # 2. Crop out transparent whitespace bounds
+    # 1. Crop out transparent whitespace bounds
     alpha = img.getchannel('A')
     bbox = alpha.getbbox()
     if bbox:
@@ -112,10 +101,10 @@ def crop_and_contain_logo(img: Image.Image, default_size: tuple) -> Image.Image:
     elif img.getbbox():
         img = img.crop(img.getbbox())
         
-    # 3. Resize within bounding box maintaining aspect ratio
+    # 2. Resize within bounding box maintaining aspect ratio
     img.thumbnail(default_size, Image.Resampling.LANCZOS)
     
-    # 4. Center on transparent canvas of fixed target bounding box size
+    # 3. Center on transparent canvas of fixed target bounding box size
     canvas = Image.new("RGBA", default_size, (0, 0, 0, 0))
     offset = ((default_size[0] - img.width) // 2, (default_size[1] - img.height) // 2)
     canvas.paste(img, offset, img)
