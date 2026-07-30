@@ -88,12 +88,26 @@ os.makedirs(LOCAL_IMAGE_CACHE_DIR, exist_ok=True)
 
 def crop_and_contain_logo(img: Image.Image, default_size: tuple) -> Image.Image:
     """
-    Automatically crops surrounding transparent whitespace using alpha channel bounding box getchannel('A').getbbox(),
-    then resizes & centers the logo within fixed default_size bounding box maintaining aspect ratio.
+    1. Checks the 4 corners of the logo. If any corner pixel is near-white (R > 240, G > 240, B > 240),
+       uses Pillow's ImageDraw.floodfill() starting from those corners to replace the contiguous outer white
+       background with transparent color (255, 255, 255, 0), with thresh=30 to handle JPEG artifacts.
+    2. Automatically crops surrounding transparent whitespace using alpha channel bounding box getchannel('A').getbbox().
+    3. Resizes & centers the logo within fixed default_size bounding box maintaining aspect ratio.
     """
     img = img.convert("RGBA")
+    w, h = img.size
     
-    # 1. Crop out transparent whitespace bounds
+    # 1. Floodfill contiguous outer white background starting from 4 corners
+    corners = [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)]
+    for xy in corners:
+        try:
+            r, g, b, a = img.getpixel(xy)
+            if r > 240 and g > 240 and b > 240 and a > 0:
+                ImageDraw.floodfill(img, xy, (255, 255, 255, 0), thresh=30)
+        except Exception:
+            pass
+    
+    # 2. Crop out transparent whitespace bounds
     alpha = img.getchannel('A')
     bbox = alpha.getbbox()
     if bbox:
@@ -101,10 +115,10 @@ def crop_and_contain_logo(img: Image.Image, default_size: tuple) -> Image.Image:
     elif img.getbbox():
         img = img.crop(img.getbbox())
         
-    # 2. Resize within bounding box maintaining aspect ratio
+    # 3. Resize within bounding box maintaining aspect ratio
     img.thumbnail(default_size, Image.Resampling.LANCZOS)
     
-    # 3. Center on transparent canvas of fixed target bounding box size
+    # 4. Center on transparent canvas of fixed target bounding box size
     canvas = Image.new("RGBA", default_size, (0, 0, 0, 0))
     offset = ((default_size[0] - img.width) // 2, (default_size[1] - img.height) // 2)
     canvas.paste(img, offset, img)
@@ -162,7 +176,7 @@ def draw_halftone_dots(draw: ImageDraw.ImageDraw, bounds: tuple, color: tuple, s
         for y in range(y0, y1, spacing):
             draw.ellipse([x - dot_radius, y - dot_radius, x + dot_radius, y + dot_radius], fill=color)
 
-def generate_matchday_poster(club_name: str, matches: List[Match], output_path: str = "matchday_poster.png") -> str:
+def generate_matchday_poster(club_name: str, matches: List[Match], output_path: str = "matchday_poster.png", matchweek_str: Optional[str] = None) -> str:
     """
     Generates a 1080x1080 Kickly-style Virtua CF matchday poster matching official Navy & Gold brand identity.
     """
@@ -199,10 +213,21 @@ def generate_matchday_poster(club_name: str, matches: List[Match], output_path: 
     font_footer = load_system_font(18, bold=True)
 
     from logo_cache import logo_cache
+    from datetime import date
+    from models import get_matchday_window
 
-    # 1. Top Header: Perfectly Centered ("FIXTURES" + "MATCHDAY SCHEDULE")
+    if matchweek_str is None:
+        start_win, _ = get_matchday_window()
+        mw1_start = date(2026, 7, 13)
+        days_diff = (start_win.date() - mw1_start).days
+        mw_num = max(1, (days_diff // 7) + 1)
+        sub_header_text = f"MATCHWEEK {mw_num:02d}"
+    else:
+        sub_header_text = matchweek_str.upper()
+
+    # 1. Top Header: Perfectly Centered ("FIXTURES" + "MATCHWEEK XX")
     draw.text((width // 2, 38), "F I X T U R E S", fill=WHITE_TEXT, font=font_header, anchor="ma")
-    draw.text((width // 2, 112), "MATCHDAY SCHEDULE", fill=MUTED_TEXT, font=font_sub_header, anchor="ma")
+    draw.text((width // 2, 112), sub_header_text, fill=MUTED_TEXT, font=font_sub_header, anchor="ma")
     
     if not matches:
         draw.text((width // 2, height // 2), f"No upcoming matches for {club_name}", fill=WHITE_TEXT, font=font_team, anchor="ma")
